@@ -333,10 +333,10 @@ export const MafiyaVipPanel: React.FC<MafiyaVipPanelProps> = ({
 
             <form onSubmit={handleUidSubmit} className="space-y-2 pt-1">
               <input
-                type="text"
+                type="password"
                 value={inputUid}
                 onChange={(e) => setInputUid(e.target.value)}
-                placeholder="Enter Game UID (eg: 88657183)"
+                placeholder="•••••••• (Enter Game UID)"
                 className="w-full bg-slate-900 border border-purple-500/50 text-white text-center py-1.5 px-3 rounded-lg text-xs font-mono focus:outline-none focus:border-amber-400"
               />
 
