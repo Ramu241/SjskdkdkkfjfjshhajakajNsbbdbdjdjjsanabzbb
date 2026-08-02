@@ -92,17 +92,43 @@ export const MafiyaVipPanel: React.FC<MafiyaVipPanelProps> = ({
 
   const handleUidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputUid.trim()) {
+    const cleanUid = inputUid.trim();
+    if (!cleanUid) {
       alert("कृपया अपनी गेम यूआईडी (Game UID) दर्ज करें!");
       return;
     }
+    
     setIsActivating(true);
     setTimeout(() => {
-      onActivateUid(inputUid.trim());
-      setIsActivating(false);
-      setShowUidModal(false);
+      // Get Master Admin Approved List
+      const saved = localStorage.getItem('approved_game_uids');
+      const approvedUids: string[] = saved ? JSON.parse(saved) : ['88657183', 'RAMUVIP1008', '886571831313'];
+      
+      if (approvedUids.includes(cleanUid)) {
+        onActivateUid(cleanUid);
+        setIsActivating(false);
+        setShowUidModal(false);
+      } else {
+        setIsActivating(false);
+        alert("❌ अमान्य Game UID!\n\nयह UID एडमिन द्वारा एक्टिवेट नहीं है। केवल एडमिन पैनल (Admin Panel) से अप्रूव्ड UID ही काम करेगी।");
+      }
     }, 600);
   };
+
+  // Anti-Tamper Keyboard protection
+  useEffect(() => {
+    const disableInspect = (e: KeyboardEvent) => {
+      if (
+        e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+        (e.ctrlKey && e.keyCode === 85)
+      ) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', disableInspect);
+    return () => window.removeEventListener('keydown', disableInspect);
+  }, []);
 
   // Position calculation based on dock setting or custom position
   const getPositionStyles = (): React.CSSProperties => {
@@ -121,8 +147,11 @@ export const MafiyaVipPanel: React.FC<MafiyaVipPanelProps> = ({
     };
   };
 
-  // Calculate activation state
-  const needsActivation = !gameUid || showUidModal;
+  // Calculate activation state against Admin Master List
+  const savedUids = typeof window !== 'undefined' ? localStorage.getItem('approved_game_uids') : null;
+  const approvedList: string[] = savedUids ? JSON.parse(savedUids) : ['88657183', 'RAMUVIP1008', '886571831313'];
+  const isApproved = Boolean(gameUid && approvedList.includes(gameUid));
+  const needsActivation = !isApproved || showUidModal;
 
   // Render Minimized Badge Mode
   if (settings.isMinimized) {
