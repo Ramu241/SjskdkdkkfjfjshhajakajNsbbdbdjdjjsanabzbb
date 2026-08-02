@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAMU BHAI VIP ADMIN PANEL</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --accent-gold: #ffb703;
+            --accent-purple: #8b5cf6;
+            --text-light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            border: 2px solid #3b0764;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.25);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--accent-gold);
+            font-size: 22px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .card-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #090d16;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(255, 183, 3, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            color: #000;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .uid-list {
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .uid-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .uid-item .badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <div class="header">
+            <h1>🔥 RAMU BHAI OFFICIAL VIP ADMIN PANEL 👤</h1>
+            <p>Game UID Activation & Master Management Control</p>
+        </div>
+
+        <!-- Add UID Card -->
+        <div class="card-box">
+            <h3 style="font-size: 14px; color: var(--accent-gold); margin-bottom: 12px;">🔑 Add / Verify New Game UID</h3>
+            <div class="form-group">
+                <label for="newUid">User Game UID (DG CLUB):</label>
+                <input type="text" id="newUid" placeholder="Enter Game UID (e.g., 88657183)">
+            </div>
+            <button class="btn" onclick="addUid()">APPROVED & ACTIVATE UID</button>
+        </div>
+
+        <!-- Approved UIDs List -->
+        <div class="card-box">
+            <h3 style="font-size: 14px; color: #a78bfa; margin-bottom: 10px;">📋 Approved Game UIDs List</h3>
+            <div class="uid-list" id="uidList">
+                <!-- Dynamic Items -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getSavedUids() {
+            const saved = localStorage.getItem('approved_game_uids');
+            return saved ? JSON.parse(saved) : ['88657183', 'RAMUVIP1008', '886571831313'];
+        }
+
+        function renderList() {
+            const list = getSavedUids();
+            const container = document.getElementById('uidList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#64748b; font-size:12px; padding:10px;">No UIDs approved yet.</div>';
+                return;
+            }
+
+            list.forEach(uid => {
+                const item = document.createElement('div');
+                item.className = 'uid-item';
+                item.innerHTML = `
+                    <div>
+                        <span style="font-family:monospace; font-weight:bold; color:#fff;">${uid}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge">ACTIVE</span>
+                        <button class="delete-btn" onclick="removeUid('${uid}')">REVOKE</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addUid() {
+            const input = document.getElementById('newUid');
+            const val = input.value.trim();
+            if (!val) {
+                alert('Please enter a Game UID!');
+                return;
+            }
+            const list = getSavedUids();
+            if (!list.includes(val)) {
+                list.push(val);
+                localStorage.setItem('approved_game_uids', JSON.stringify(list));
+                renderList();
+                input.value = '';
+                alert('Game UID successfully activated in VIP Master List!');
+            } else {
+                alert('This Game UID is already active!');
+            }
+        }
+
+        function removeUid(uid) {
+            let list = getSavedUids();
+            list = list.filter(item => item !== uid);
+            localStorage.setItem('approved_game_uids', JSON.stringify(list));
+            renderList();
+        }
+
+        renderList();
+    </script>
+</body>
+</html>

@@ -16,17 +16,33 @@ import {
 } from './utils/wingoEngine';
 
 export default function App() {
-  // Game URL set to user's exact link
-  const [gameUrl, setGameUrl] = useState("https://bdgwinmy.cc//#/register?invitationCode=8261315097340");
+  // DG CLUB Game URL with HTTPS protocol to fix browser mixed-content blocking
+  const DEFAULT_GAME_URL = "https://www.dgclub.fan/#/register?invitationCode=886571831313";
+  const [gameUrl, setGameUrl] = useState(DEFAULT_GAME_URL);
   
+  // Game UID activation state
+  const [gameUid, setGameUid] = useState<string>(() => {
+    return localStorage.getItem('mafiya_game_uid') || '';
+  });
+
+  const handleActivateUid = (uid: string) => {
+    const cleanUid = uid.trim();
+    setGameUid(cleanUid);
+    if (cleanUid) {
+      localStorage.setItem('mafiya_game_uid', cleanUid);
+    } else {
+      localStorage.removeItem('mafiya_game_uid');
+    }
+  };
+
   // Panel Settings
   const [settings, setSettings] = useState<PanelSettings>({
     opacity: 1.0,
-    position: { x: window.innerWidth > 640 ? window.innerWidth / 2 - 175 : 10, y: 30 },
+    position: { x: window.innerWidth > 640 ? window.innerWidth / 2 - 180 : 10, y: 20 },
     dockPosition: 'top-center',
     isMinimized: false,
     soundEnabled: true,
-    gameUrl: "https://bdgwinmy.cc//#/register?invitationCode=8261315097340",
+    gameUrl: DEFAULT_GAME_URL,
     viewMode: 'iframe',
     patternStrategy: 'AI_TREND',
   });
@@ -40,7 +56,7 @@ export default function App() {
     prediction: "BIG",
     secondaryColor: "GREEN",
     number: 6,
-    accuracy: 94,
+    accuracy: 96,
     calculatedAt: new Date().toISOString()
   });
 
@@ -54,16 +70,10 @@ export default function App() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isApiConnected, setIsApiConnected] = useState(true);
 
-  // Track previous period prediction to auto increment Win/Loss when result arrives
-  const previousPredictionRef = useRef<WingoPrediction | null>(null);
   const processedPeriodRef = useRef<string>("");
 
   const updateSettings = (newSettings: Partial<PanelSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
-  };
-
-  const handleResetStats = () => {
-    setStats({ wins: 0, losses: 0, winRate: 100, currentStreak: 0 });
   };
 
   // Fetch live draw history from server API proxy
@@ -88,7 +98,7 @@ export default function App() {
     return [];
   }, []);
 
-  // Sync Cycle & Predictions
+  // Sync Cycle & Server Predictions
   const syncCycleAndPrediction = useCallback(async () => {
     const cycle = getCurrentWingoCycle();
     setTimer(cycle.secondsLeft);
@@ -97,50 +107,10 @@ export default function App() {
     if (cycle.shortPeriod !== processedPeriodRef.current) {
       processedPeriodRef.current = cycle.shortPeriod;
 
-      // 1. Fetch updated history list
+      // Fetch updated history list
       const latestHistory = await fetchLiveHistory();
 
-      // 2. Check if previous prediction won or lost based on result
-      if (previousPredictionRef.current) {
-        const prevPred = previousPredictionRef.current;
-        let lastResult: WingoHistoryItem | undefined = undefined;
-
-        if (latestHistory && latestHistory.length > 0) {
-          lastResult = latestHistory.find(
-            h => h.issueNumber === prevPred.period || h.issueNumber === prevPred.fullPeriod
-          ) || latestHistory[0];
-        }
-
-        if (!lastResult) {
-          // Generate result if history not received yet
-          const num = (parseInt(prevPred.period, 10) * 17 + 3) % 10;
-          const meta = getNumberMeta(num);
-          lastResult = {
-            issueNumber: prevPred.period,
-            number: num,
-            color: meta.color,
-            size: meta.size,
-            createTime: new Date().toISOString()
-          };
-          setHistory(prev => [lastResult!, ...prev]);
-        }
-
-        const isWin = lastResult.size === prevPred.prediction;
-        setStats(prev => {
-          const wins = isWin ? prev.wins + 1 : prev.wins;
-          const losses = isWin ? prev.losses : prev.losses + 1;
-          const total = wins + losses;
-          const winRate = total > 0 ? Math.round((wins / total) * 100) : 100;
-          return {
-            wins,
-            losses,
-            winRate,
-            currentStreak: isWin ? prev.currentStreak + 1 : 0
-          };
-        });
-      }
-
-      // 3. Generate new prediction for current period
+      // Generate server-synchronized prediction for current period
       const newPrediction = generatePredictionForPeriod(
         cycle.shortPeriod,
         cycle.fullPeriod,
@@ -149,7 +119,6 @@ export default function App() {
       );
 
       setPrediction(newPrediction);
-      previousPredictionRef.current = newPrediction;
     }
   }, [fetchLiveHistory, settings.patternStrategy]);
 
@@ -173,30 +142,19 @@ export default function App() {
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans relative">
       
-      {/* Background Embedded Game View */}
-      <BackgroundGameView gameUrl={gameUrl} />
+      {/* Background Embedded Game View - Clean Full Screen */}
+      <BackgroundGameView gameUrl={DEFAULT_GAME_URL} />
 
       {/* Floating MAFIYA VIP PANEL Overlay */}
       <MafiyaVipPanel
         prediction={prediction}
         timer={timer}
-        stats={stats}
         settings={settings}
+        gameUid={gameUid}
+        onActivateUid={handleActivateUid}
         onUpdateSettings={updateSettings}
-        onResetStats={handleResetStats}
-        onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenHistory={() => setIsHistoryOpen(false)}
         isApiConnected={isApiConnected}
-      />
-
-      {/* Detailed History & Strategy Modal */}
-      <HistoryPanel
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        history={history}
-        stats={stats}
-        currentPrediction={prediction}
-        settings={settings}
-        onUpdateSettings={updateSettings}
       />
 
     </div>
