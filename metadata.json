@@ -1,0 +1,6 @@
+{
+  "name": "Mafiya VIP Panel",
+  "description": "Live Wingo 1 Min prediction overlay panel floating over the background game view with real-time period calculation and live result history.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

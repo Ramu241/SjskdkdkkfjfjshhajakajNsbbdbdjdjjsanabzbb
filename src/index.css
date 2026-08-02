@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Exact VIP Panel Original Styles with widened clean layout */
+.vip-panel {
+  width: 92vw !important;
+  max-width: 420px !important; /* Widened size for perfect fit */
+  background: linear-gradient(145deg, #15102a, #0a0814) !important;
+  border: 1.5px solid #a855f7 !important;
+  border-radius: 16px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 20px rgba(168, 85, 247, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* Top Button Banner */
+.register-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: linear-gradient(90deg, #6366f1, #a855f7) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  border-radius: 20px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.5) !important;
+  transition: all 0.2s ease !important;
+}
+
+.register-btn:hover, .register-btn:active {
+  transform: scale(0.98) !important;
+  opacity: 0.95 !important;
+}
+
+/* Header Title */
+.panel-title {
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  margin: 8px 0 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  color: #fbbf24 !important;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5) !important;
+}
+
+/* 3-Box Grid Layout */
+.grid-container {
+  display: grid !important;
+  grid-template-columns: 1fr 1.2fr 1fr !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 8px 4px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.card-label {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  color: #9ca3af !important;
+  text-transform: uppercase !important;
+  margin-bottom: 3px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+.card-value {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+/* Middle Highlight Card (WINGO 1 MIN / BIG) */
+.card-main {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid #f59e0b !important;
+  box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.25), 0 0 10px rgba(245, 158, 11, 0.35) !important;
+}
+
+.card-main .card-label {
+  color: #f59e0b !important;
+}
+
+.card-main .card-value {
+  font-size: 17px !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8) !important;
+}
+
+.card-right .card-value {
+  color: #22c55e !important;
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.5) !important;
+}
+
+/* Footer Stats Bar */
+.stats-bar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  padding: 6px 12px !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.win-text {
+  color: #4ade80 !important;
+}
+
+.timer-text {
+  color: #e5e7eb !important;
+}
+
+.loss-text {
+  color: #f87171 !important;
+}
