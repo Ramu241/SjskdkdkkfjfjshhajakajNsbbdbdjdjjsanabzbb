@@ -13,6 +13,8 @@ export interface WingoPrediction {
   prediction: 'BIG' | 'SMALL';
   secondaryColor?: 'GREEN' | 'RED' | 'VIOLET';
   number: number;
+  numbers?: number[];
+  level?: number; // 1 (Normal/Primary) or 2 (High Accuracy Boost)
   accuracy: number;
   calculatedAt: string;
   reason?: string;

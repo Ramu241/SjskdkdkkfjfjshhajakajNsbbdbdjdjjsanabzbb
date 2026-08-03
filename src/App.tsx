@@ -71,6 +71,8 @@ export default function App() {
   const [isApiConnected, setIsApiConnected] = useState(true);
 
   const processedPeriodRef = useRef<string>("");
+  const currentLevelRef = useRef<number>(1);
+  const previousPredictionRef = useRef<WingoPrediction | null>(null);
 
   const updateSettings = (newSettings: Partial<PanelSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
@@ -105,19 +107,65 @@ export default function App() {
 
     // If new period detected
     if (cycle.shortPeriod !== processedPeriodRef.current) {
+      const lastPeriod = processedPeriodRef.current;
       processedPeriodRef.current = cycle.shortPeriod;
 
       // Fetch updated history list
       const latestHistory = await fetchLiveHistory();
 
-      // Generate server-synchronized prediction for current period
+      // Check result of previous prediction if available
+      if (lastPeriod && previousPredictionRef.current && latestHistory.length > 0) {
+        const latestDraw = latestHistory[0];
+        const actualNum = latestDraw.number;
+        const actualSize = actualNum >= 5 || latestDraw.size === 'BIG' ? 'BIG' : 'SMALL';
+        
+        const prevPred = previousPredictionRef.current;
+        const isWin = (prevPred.prediction === actualSize) || (prevPred.numbers && prevPred.numbers.includes(actualNum));
+
+        if (isWin) {
+          currentLevelRef.current = 1; // Reset to Level 1 on WIN
+          setStats(prev => {
+            const wins = prev.wins + 1;
+            const total = wins + prev.losses;
+            return {
+              ...prev,
+              wins,
+              winRate: Math.round((wins / total) * 100),
+              currentStreak: prev.currentStreak >= 0 ? prev.currentStreak + 1 : 1
+            };
+          });
+        } else {
+          // On LOSS, switch level
+          if (currentLevelRef.current === 1) {
+            currentLevelRef.current = 2; // High Accuracy Boost Level 2
+          } else {
+            currentLevelRef.current = 1; // Reset after Level 2
+          }
+
+          setStats(prev => {
+            const losses = prev.losses + 1;
+            const total = prev.wins + losses;
+            return {
+              ...prev,
+              losses,
+              winRate: Math.round((prev.wins / total) * 100),
+              currentStreak: prev.currentStreak <= 0 ? prev.currentStreak - 1 : -1
+            };
+          });
+        }
+      }
+
+      // Generate server-synchronized prediction for current period using 2-Level engine
       const newPrediction = generatePredictionForPeriod(
         cycle.shortPeriod,
         cycle.fullPeriod,
         latestHistory,
-        settings.patternStrategy
+        settings.patternStrategy,
+        currentLevelRef.current,
+        previousPredictionRef.current?.prediction
       );
 
+      previousPredictionRef.current = newPrediction;
       setPrediction(newPrediction);
     }
   }, [fetchLiveHistory, settings.patternStrategy]);

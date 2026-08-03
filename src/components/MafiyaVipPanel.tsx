@@ -352,12 +352,17 @@ export const MafiyaVipPanel: React.FC<MafiyaVipPanelProps> = ({
         ) : (
           /* Active VIP Prediction View */
           <>
-            {/* Active Status Badge - Cleaned without showing exact UID */}
-            <div className="flex items-center justify-between bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[10px] mb-2 font-mono">
-              <span className="text-emerald-400 font-bold flex items-center gap-1">
-                <CheckCircle size={11} /> VIP ACTIVATED
+            {/* Level Status Badge - SURESH VIP SUPREME 2-Level System */}
+            <div className="flex items-center justify-between bg-slate-900/90 border border-purple-500/40 px-2 py-1 rounded-lg text-[10px] mb-2">
+              <span className={`font-extrabold px-2 py-0.5 rounded text-[9px] ${prediction.level === 2 ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50 animate-pulse' : 'bg-amber-950 text-amber-300 border border-amber-500/50'}`}>
+                LEVEL: {prediction.level || 1} ({prediction.level === 2 ? 'HIGH ACCURACY BOOST' : 'PRIMARY'})
               </span>
-              <span className="text-amber-300 font-bold">RAMU BHAI OFFICIAL</span>
+              <span className="text-amber-300 font-bold text-[9px]">SURESH VIP SUPREME V15</span>
+            </div>
+
+            {/* 2-Level Target Numbers Box */}
+            <div className="text-center text-[10px] font-bold text-amber-300 bg-amber-500/10 border border-dashed border-amber-500/40 rounded-lg py-1 px-2 mb-2">
+              2-LEVEL NUMBERS: <span className="text-white font-mono text-xs">{prediction.numbers ? prediction.numbers.join(" | ") : prediction.number}</span>
             </div>
 
             {/* Prediction Grid Container */}

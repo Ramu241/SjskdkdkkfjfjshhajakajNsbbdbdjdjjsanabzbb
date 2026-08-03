@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAMU BHAI VIP PANEL - DG CLUB</title>
+    <!-- Tailwind CSS CDN for icons/utility -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #020617;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        /* Embedded Game View Iframe */
+        .game-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Floating VIP Panel Container */
+        .vip-panel-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 92vw;
+            max-width: 420px;
+            background: linear-gradient(145deg, #15102a, #0a0814);
+            border: 1.5px solid #a855f7;
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 20px rgba(168, 85, 247, 0.4);
+            color: #ffffff;
+            cursor: move;
+        }
+
+        /* Top Telegram Join Banner */
+        .register-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .register-btn:hover {
+            transform: scale(0.98);
+            opacity: 0.95;
+        }
+
+        /* Title Header */
+        .panel-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            margin: 6px 0 10px 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        /* 3-Box Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .card-value {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        /* Center Result Highlight Box */
+        .card-main {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #f59e0b;
+            box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.25), 0 0 10px rgba(245, 158, 11, 0.35);
+        }
+
+        .card-main .card-label {
+            color: #f59e0b;
+        }
+
+        .card-main .card-value {
+            font-size: 18px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .card-right .card-value {
+            color: #22c55e;
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+        /* Footer Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .timer-text {
+            color: #fbbf24;
+            font-weight: 800;
+        }
+
+        .timer-sec {
+            color: #ffffff;
+            font-size: 14px;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Activation Box */
+        .activation-box {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .register-link-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #020617;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 8px 0;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .uid-input {
+            width: 100%;
+            background: #090d16;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: #ffffff;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: monospace;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .activate-btn {
+            width: 100%;
+            background: #9333ea;
+            color: #ffffff;
+            font-weight: 800;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .badge-verified {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Embedded DG CLUB Game View -->
+    <iframe 
+        src="https://www.dgclub.fan/#/register?invitationCode=886571831313" 
+        class="game-iframe"
+        title="DG CLUB Game Server"
+    ></iframe>
+
+    <!-- Floating MAFIYA VIP OVERLAY PANEL -->
+    <div class="vip-panel-overlay" id="vipPanel">
+        
+        <!-- Top Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(168,85,247,0.2); padding-bottom:6px; margin-bottom:6px; font-size:10px;">
+            <div style="color:#d8b4fe; font-weight:700; letter-spacing:0.5px;">
+                👑 MAFIYA VIP OVERLAY
+            </div>
+            <div style="color:#34d399; font-size:8px; background:rgba(6,78,59,0.8); padding:2px 6px; border-radius:10px; border:1px solid rgba(52,211,153,0.3);">
+                ● SERVER LIVE
+            </div>
+        </div>
+
+        <!-- Telegram Channel Link -->
+        <a href="https://t.me/+cFIMYplJlMphMzRl" target="_blank" class="register-btn">
+            JOIN OFFICIAL TELEGRAM CHANNEL
+        </a>
+
+        <!-- Title -->
+        <div class="panel-title">
+            🔥 RAMU BHAI OFFICIAL ARMY 👤
+        </div>
+
+        <!-- Activation Screen or Prediction Dashboard -->
+        <div id="activationView" class="activation-box">
+            <div style="color:#f59e0b; font-weight:800; font-size:12px; margin-bottom:4px;">
+                🔑 VIP PANEL ACTIVATION REQUIRED
+            </div>
+            <p style="font-size:10px; color:#cbd5e1; line-height:1.3;">
+                पैनल इस्तेमाल करने के लिए सबसे पहले नीचे दिए गए बटन से नया DG CLUB अकाउंट बनाएं और अपनी Game UID दर्ज करें:
+            </p>
+
+            <a href="https://www.dgclub.fan/#/register?invitationCode=886571831313" target="_blank" class="register-link-btn">
+                REGISTER GAME ACCOUNT (DG CLUB)
+            </a>
+
+            <input type="password" id="gameUidInput" class="uid-input" placeholder="•••••••• (Enter Game UID)">
+            <button class="activate-btn" onclick="activateUid()">ACTIVATE VIP PANEL</button>
+        </div>
+
+        <!-- Prediction View (Hidden until activated) -->
+        <div id="predictionView" style="display:none;">
+            
+            <div class="badge-verified">
+                <span id="levelBadge">LEVEL: 1 (PRIMARY)</span>
+                <span style="color:#fbbf24;">SURESH VIP SUPREME V15</span>
+            </div>
+
+            <div style="text-align:center; font-size:10px; font-weight:800; color:#fbbf24; background:rgba(251,191,36,0.1); border:1px dashed rgba(251,191,36,0.4); padding:4px 8px; border-radius:8px; margin-bottom:8px;">
+                2-LEVEL NUMBERS: <span id="numbersVal" style="color:#ffffff; font-family:monospace; font-size:12px;">-</span>
+            </div>
+
+            <div class="grid-container">
+                <div class="card">
+                    <span class="card-label">PERIOD</span>
+                    <span class="card-value" id="periodVal">---</span>
+                </div>
+
+                <div class="card card-main">
+                    <span class="card-label">WINGO 1 MIN</span>
+                    <span class="card-value" id="predictionVal">---</span>
+                </div>
+
+                <div class="card card-right">
+                    <span class="card-label">NUMBER</span>
+                    <span class="card-value" id="numberVal">-</span>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <span class="timer-text">
+                    SERVER TIMER: <span class="timer-sec" id="timerVal">00</span> SECONDS
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Check saved UID approval status
+        function checkActivation() {
+            const activeUid = localStorage.getItem('mafiya_game_uid');
+            const savedUids = localStorage.getItem('approved_game_uids');
+            const approvedList = savedUids ? JSON.parse(savedUids) : ['88657183', 'RAMUVIP1008', '886571831313'];
+
+            if (activeUid && approvedList.includes(activeUid)) {
+                document.getElementById('activationView').style.display = 'none';
+                document.getElementById('predictionView').style.display = 'block';
+            } else {
+                document.getElementById('activationView').style.display = 'block';
+                document.getElementById('predictionView').style.display = 'none';
+            }
+        }
+
+        function activateUid() {
+            const input = document.getElementById('gameUidInput').value.trim();
+            if (!input) {
+                alert('कृपया अपनी गेम यूआईडी (Game UID) दर्ज करें!');
+                return;
+            }
+
+            const savedUids = localStorage.getItem('approved_game_uids');
+            const approvedList = savedUids ? JSON.parse(savedUids) : ['88657183', 'RAMUVIP1008', '886571831313'];
+
+            if (approvedList.includes(input)) {
+                localStorage.setItem('mafiya_game_uid', input);
+                checkActivation();
+            } else {
+                alert('❌ अमान्य Game UID!\n\nयह UID एडमिन द्वारा एक्टिवेट नहीं है। केवल एडमिन पैनल से अप्रूव्ड UID ही काम करेगी।');
+            }
+        }
+
+        let currentLevel = 1;
+        let lastProcessedPeriod = "";
+        let lastPrediction = "BIG";
+
+        // Live Wingo 1-Minute Cycle Calculator
+        function updateWingoCycle() {
+            const now = new Date();
+            const totalSecondsToday = now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
+            const periodIndex = Math.floor(totalSecondsToday / 60) + 1;
+            
+            const shortPeriod = periodIndex.toString().padStart(3, '0');
+            const secondsLeft = 59 - now.getUTCSeconds();
+
+            document.getElementById('timerVal').innerText = secondsLeft < 10 ? '0' + secondsLeft : secondsLeft;
+            document.getElementById('periodVal').innerText = shortPeriod;
+
+            if (shortPeriod !== lastProcessedPeriod) {
+                lastProcessedPeriod = shortPeriod;
+                const seed = (parseInt(shortPeriod, 10) * 37 + 1008) % 100;
+                let isBig = seed >= 50;
+
+                if (currentLevel === 2) {
+                    isBig = lastPrediction === 'SMALL'; // Flip prediction in recovery mode
+                }
+
+                lastPrediction = isBig ? 'BIG' : 'SMALL';
+                const primaryPool = isBig ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+                const secondaryPool = isBig ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+
+                const num1 = primaryPool[seed % primaryPool.length];
+                const num2 = secondaryPool[(seed * 3) % secondaryPool.length];
+                const numbers = [num1, num2].sort((a, b) => a - b);
+
+                document.getElementById('predictionVal').innerText = lastPrediction;
+                document.getElementById('numberVal').innerText = num1;
+                document.getElementById('numbersVal').innerText = numbers.join(" | ");
+                
+                const levelText = currentLevel === 1 ? "LEVEL: 1 (PRIMARY)" : "LEVEL: 2 (HIGH ACCURACY BOOST)";
+                document.getElementById('levelBadge').innerText = levelText;
+            }
+        }
+
+        setInterval(updateWingoCycle, 1000);
+        updateWingoCycle();
+        checkActivation();
+
+        // Dragging Panel Logic
+        const panel = document.getElementById('vipPanel');
+        let isDragging = false, offset = { x: 0, y: 0 };
+
+        panel.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+            isDragging = true;
+            offset.x = e.clientX - panel.offsetLeft;
+            offset.y = e.clientY - panel.offsetTop;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panel.style.left = (e.clientX - offset.x) + 'px';
+            panel.style.top = (e.clientY - offset.y) + 'px';
+            panel.style.transform = 'none';
+        });
+
+        document.addEventListener('mouseup', () => { isDragging = false; });
+
+        // Disable Inspect Element / Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+</body>
+</html>

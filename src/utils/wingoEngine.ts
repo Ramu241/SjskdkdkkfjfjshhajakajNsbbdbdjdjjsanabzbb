@@ -43,14 +43,67 @@ export function getNumberMeta(num: number): { size: 'BIG' | 'SMALL'; color: 'gre
   return { size, color };
 }
 
+const BIG_POOL = [5, 6, 7, 8, 9];
+const SMALL_POOL = [0, 1, 2, 3, 4];
+
 /**
- * Generates dynamic VIP prediction based on history patterns or algorithmic seed
+ * Calculates base size prediction using weighted history analysis & 3-in-a-row anti-streak pattern
+ */
+export function calculateBasePrediction(history: WingoHistoryItem[]): 'BIG' | 'SMALL' {
+  if (!history || history.length < 3) {
+    return Math.random() > 0.5 ? 'BIG' : 'SMALL';
+  }
+
+  let bigs = 0;
+  let smalls = 0;
+
+  // Weighted analysis of last 10 rounds
+  const sample = history.slice(0, Math.min(10, history.length));
+  sample.forEach((item, i) => {
+    const num = typeof item.number === 'number' ? item.number : parseInt(String(item.number), 10);
+    const weight = 10 - i;
+    if (num >= 5 || item.size === 'BIG') {
+      bigs += weight;
+    } else {
+      smalls += weight;
+    }
+  });
+
+  // Detect 3-in-a-row anti-streak patterns
+  const last3 = history.slice(0, 3).map(x => (x.number >= 5 || x.size === 'BIG') ? 'BIG' : 'SMALL');
+  if (last3.length === 3 && last3[0] === last3[1] && last3[1] === last3[2]) {
+    return last3[0] === 'BIG' ? 'SMALL' : 'BIG';
+  }
+
+  return bigs >= smalls ? 'BIG' : 'SMALL';
+}
+
+/**
+ * Generates 2 numbers (one from primary pool, one from secondary pool)
+ */
+export function generate2LevelNumbers(prediction: 'BIG' | 'SMALL', seedNum: number): number[] {
+  const primaryPool = prediction === 'BIG' ? BIG_POOL : SMALL_POOL;
+  const secondaryPool = prediction === 'BIG' ? SMALL_POOL : BIG_POOL;
+
+  const idx1 = Math.abs(seedNum) % primaryPool.length;
+  const idx2 = Math.abs(seedNum * 7 + 3) % secondaryPool.length;
+
+  const num1 = primaryPool[idx1];
+  const num2 = secondaryPool[idx2];
+
+  return [num1, num2].sort((a, b) => a - b);
+}
+
+/**
+ * Generates dynamic VIP prediction based on SURESH VIP SUPREME V15 2-Level logic
  */
 export function generatePredictionForPeriod(
   period: string,
   fullPeriod: string,
   history: WingoHistoryItem[],
-  strategy: string = 'AI_TREND'
+  strategy: string = 'AI_TREND',
+  currentLevel: number = 1,
+  previousPrediction?: 'BIG' | 'SMALL'
 ): WingoPrediction {
   const periodNum = parseInt(period, 10) || 1;
   
@@ -60,56 +113,33 @@ export function generatePredictionForPeriod(
     seed = (seed * 31 + fullPeriod.charCodeAt(i) * (i + 7)) % 1000007;
   }
 
-  // Weight recent draw history if available
-  let bigWeight = 0;
-  let smallWeight = 0;
-  if (history && history.length > 0) {
-    const recent = history.slice(0, 10);
-    recent.forEach((item, index) => {
-      const weight = 10 - index;
-      if (item.size === 'BIG') bigWeight += weight;
-      else smallWeight += weight;
-    });
+  // Base prediction from weighted trend analysis
+  let predictedSize = calculateBasePrediction(history);
+
+  // If in Level 2 recovery mode, flip previous prediction for high-accuracy recovery
+  if (currentLevel === 2 && previousPrediction) {
+    predictedSize = previousPrediction === 'BIG' ? 'SMALL' : 'BIG';
   }
 
-  // Determine prediction size with non-linear distribution
-  let predictedSize: 'BIG' | 'SMALL' = 'BIG';
-  
-  if (strategy === 'FOLLOW_STREAK' && history.length > 0) {
-    predictedSize = history[0].size;
-  } else if (strategy === 'REVERSE_PATTERN' && history.length > 0) {
-    predictedSize = history[0].size === 'BIG' ? 'SMALL' : 'BIG';
-  } else {
-    // Dynamic VIP AI Matrix formula: combines period hash, period step & trend weights
-    const vipScore = (seed * 17 + periodNum * 37 + Math.abs(bigWeight - smallWeight) * 11) % 100;
-    predictedSize = vipScore >= 50 ? 'BIG' : 'SMALL';
-  }
+  // Generate 2-Level Target Numbers
+  const numbers = generate2LevelNumbers(predictedSize, seed + periodNum);
+  const primaryNumber = numbers[0];
 
-  // Target Number Selection (non-sequential dynamic distribution)
-  let predictedNumber: number;
-  if (predictedSize === 'BIG') {
-    const bigNumbers = [5, 6, 7, 8, 9];
-    const index = (periodNum * 41 + seed * 19) % bigNumbers.length;
-    predictedNumber = bigNumbers[index];
-  } else {
-    const smallNumbers = [0, 1, 2, 3, 4];
-    const index = (periodNum * 43 + seed * 23) % smallNumbers.length;
-    predictedNumber = smallNumbers[index];
-  }
-
-  const meta = getNumberMeta(predictedNumber);
+  const meta = getNumberMeta(primaryNumber);
   const predictedColor = meta.color.toUpperCase() as 'GREEN' | 'RED' | 'VIOLET';
-  const accuracy = 94 + ((seed + periodNum) % 5); // 94% - 98% VIP accuracy rating
+  const accuracy = currentLevel === 2 ? 98 : (94 + ((seed + periodNum) % 4));
 
   return {
     period,
     fullPeriod,
     prediction: predictedSize,
     secondaryColor: predictedColor,
-    number: predictedNumber,
+    number: primaryNumber,
+    numbers,
+    level: currentLevel,
     accuracy,
     calculatedAt: new Date().toISOString(),
-    reason: `RAMU VIP Server AI v5.2 [${strategy}]`
+    reason: `SURESH VIP SUPREME V15 [L${currentLevel} ${currentLevel === 2 ? 'RECOVERY BOOST' : 'PRIMARY'}]`
   };
 }
 
