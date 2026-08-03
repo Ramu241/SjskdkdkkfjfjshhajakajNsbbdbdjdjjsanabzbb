@@ -96,38 +96,47 @@ export function generate2LevelNumbers(prediction: 'BIG' | 'SMALL', seedNum: numb
 
 /**
  * Generates dynamic VIP prediction based on SURESH VIP SUPREME V15 2-Level logic
+ * Guaranteed 100% deterministic so every device/phone gets the EXACT same result for any Period number
  */
 export function generatePredictionForPeriod(
   period: string,
   fullPeriod: string,
-  history: WingoHistoryItem[],
+  history?: WingoHistoryItem[],
   strategy: string = 'AI_TREND',
-  currentLevel: number = 1,
+  currentLevel?: number,
   previousPrediction?: 'BIG' | 'SMALL'
 ): WingoPrediction {
-  const periodNum = parseInt(period, 10) || 1;
+  const pNum = parseInt(period, 10) || parseInt(fullPeriod.slice(-4), 10) || 1;
   
-  // Multi-prime hash for high-entropy deterministic VIP algorithm
-  let seed = 0;
-  for (let i = 0; i < fullPeriod.length; i++) {
-    seed = (seed * 31 + fullPeriod.charCodeAt(i) * (i + 7)) % 1000007;
-  }
+  // Universal master prime seed based strictly on period number
+  const seed = (pNum * 3571 + 100823) % 1000007;
 
-  // Base prediction from weighted trend analysis
-  let predictedSize = calculateBasePrediction(history);
+  // Universal deterministic size prediction (BIG / SMALL)
+  const sizeScore = (pNum * 37 + (seed % 997) * 19) % 100;
+  const predictedSize: 'BIG' | 'SMALL' = sizeScore >= 48 ? 'BIG' : 'SMALL';
 
-  // If in Level 2 recovery mode, flip previous prediction for high-accuracy recovery
-  if (currentLevel === 2 && previousPrediction) {
-    predictedSize = previousPrediction === 'BIG' ? 'SMALL' : 'BIG';
-  }
+  // Universal deterministic level indicator (Level 1 or Level 2)
+  const levelScore = (pNum * 13 + (seed % 101)) % 10;
+  const level = levelScore < 2 ? 2 : 1;
 
-  // Generate 2-Level Target Numbers
-  const numbers = generate2LevelNumbers(predictedSize, seed + periodNum);
-  const primaryNumber = numbers[0];
+  // Universal 2-Level Target Numbers pool
+  const bigPool = [5, 6, 7, 8, 9];
+  const smallPool = [0, 1, 2, 3, 4];
+
+  const primaryPool = predictedSize === 'BIG' ? bigPool : smallPool;
+  const secondaryPool = predictedSize === 'BIG' ? smallPool : bigPool;
+
+  const idx1 = (pNum * 7 + seed) % primaryPool.length;
+  const idx2 = (pNum * 11 + seed * 3) % secondaryPool.length;
+
+  const num1 = primaryPool[idx1];
+  const num2 = secondaryPool[idx2];
+  const numbers = [num1, num2].sort((a, b) => a - b);
+  const primaryNumber = num1;
 
   const meta = getNumberMeta(primaryNumber);
   const predictedColor = meta.color.toUpperCase() as 'GREEN' | 'RED' | 'VIOLET';
-  const accuracy = currentLevel === 2 ? 98 : (94 + ((seed + periodNum) % 4));
+  const accuracy = level === 2 ? 98 : (94 + (pNum % 4));
 
   return {
     period,
@@ -136,10 +145,10 @@ export function generatePredictionForPeriod(
     secondaryColor: predictedColor,
     number: primaryNumber,
     numbers,
-    level: currentLevel,
+    level,
     accuracy,
     calculatedAt: new Date().toISOString(),
-    reason: `SURESH VIP SUPREME V15 [L${currentLevel} ${currentLevel === 2 ? 'RECOVERY BOOST' : 'PRIMARY'}]`
+    reason: `SURESH VIP MASTER ENGINE v15 [L${level} GLOBAL SYNC]`
   };
 }
 
