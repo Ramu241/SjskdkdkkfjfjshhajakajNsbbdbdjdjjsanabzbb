@@ -48,16 +48,16 @@ export default function App() {
   });
 
   // Cycle & State
-  const [timer, setTimer] = useState(11);
+  const initialCycle = getCurrentWingoCycle();
+  const [timer, setTimer] = useState(initialCycle.secondsLeft);
   const [history, setHistory] = useState<WingoHistoryItem[]>([]);
-  const [prediction, setPrediction] = useState<WingoPrediction>({
-    period: "991",
-    fullPeriod: "20260802100010991",
-    prediction: "BIG",
-    secondaryColor: "GREEN",
-    number: 6,
-    accuracy: 96,
-    calculatedAt: new Date().toISOString()
+  const [prediction, setPrediction] = useState<WingoPrediction>(() => {
+    return generatePredictionForPeriod(
+      initialCycle.shortPeriod,
+      initialCycle.fullPeriod,
+      [],
+      'AI_TREND'
+    );
   });
 
   const [stats, setStats] = useState<PanelStats>({
