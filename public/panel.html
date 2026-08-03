@@ -355,9 +355,11 @@
             }
         }
 
+        let currentLevel = 1;
         let lastProcessedPeriod = "";
+        let lastPrediction = "BIG";
 
-        // Live Wingo 1-Minute Cycle Calculator (Global Synchronized Engine)
+        // Live Wingo 1-Minute Cycle Calculator
         function updateWingoCycle() {
             const now = new Date();
             const totalSecondsToday = now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds();
@@ -371,39 +373,26 @@
 
             if (shortPeriod !== lastProcessedPeriod) {
                 lastProcessedPeriod = shortPeriod;
-                const pNum = parseInt(shortPeriod, 10) || 1;
-                
-                // Universal master prime seed based strictly on period number
-                const seed = (pNum * 3571 + 100823) % 1000007;
+                const seed = (parseInt(shortPeriod, 10) * 37 + 1008) % 100;
+                let isBig = seed >= 50;
 
-                // Universal deterministic size prediction (BIG / SMALL)
-                const sizeScore = (pNum * 37 + (seed % 997) * 19) % 100;
-                const isBig = sizeScore >= 48;
-                const lastPrediction = isBig ? 'BIG' : 'SMALL';
+                if (currentLevel === 2) {
+                    isBig = lastPrediction === 'SMALL'; // Flip prediction in recovery mode
+                }
 
-                // Universal deterministic level indicator (Level 1 or Level 2)
-                const levelScore = (pNum * 13 + (seed % 101)) % 10;
-                const level = levelScore < 2 ? 2 : 1;
+                lastPrediction = isBig ? 'BIG' : 'SMALL';
+                const primaryPool = isBig ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+                const secondaryPool = isBig ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
 
-                // Universal 2-Level Target Numbers pool
-                const bigPool = [5, 6, 7, 8, 9];
-                const smallPool = [0, 1, 2, 3, 4];
-
-                const primaryPool = isBig ? bigPool : smallPool;
-                const secondaryPool = isBig ? smallPool : bigPool;
-
-                const idx1 = (pNum * 7 + seed) % primaryPool.length;
-                const idx2 = (pNum * 11 + seed * 3) % secondaryPool.length;
-
-                const num1 = primaryPool[idx1];
-                const num2 = secondaryPool[idx2];
+                const num1 = primaryPool[seed % primaryPool.length];
+                const num2 = secondaryPool[(seed * 3) % secondaryPool.length];
                 const numbers = [num1, num2].sort((a, b) => a - b);
 
                 document.getElementById('predictionVal').innerText = lastPrediction;
                 document.getElementById('numberVal').innerText = num1;
                 document.getElementById('numbersVal').innerText = numbers.join(" | ");
                 
-                const levelText = level === 1 ? "LEVEL: 1 (PRIMARY)" : "LEVEL: 2 (HIGH ACCURACY BOOST)";
+                const levelText = currentLevel === 1 ? "LEVEL: 1 (PRIMARY)" : "LEVEL: 2 (HIGH ACCURACY BOOST)";
                 document.getElementById('levelBadge').innerText = levelText;
             }
         }

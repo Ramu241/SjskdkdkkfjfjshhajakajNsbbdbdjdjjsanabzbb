@@ -160,7 +160,9 @@ export default function App() {
         cycle.shortPeriod,
         cycle.fullPeriod,
         latestHistory,
-        settings.patternStrategy
+        settings.patternStrategy,
+        currentLevelRef.current,
+        previousPredictionRef.current?.prediction
       );
 
       previousPredictionRef.current = newPrediction;

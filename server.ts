@@ -73,30 +73,10 @@ app.get("/api/wingo/live-state", async (req, res) => {
     // ignore upstream errors for live fallback
   }
 
-  const pNum = currentMinuteOfDay;
-  const seed = (pNum * 3571 + 100823) % 1000007;
-  const sizeScore = (pNum * 37 + (seed % 997) * 19) % 100;
-  const predictedSize = sizeScore >= 48 ? 'BIG' : 'SMALL';
-  const levelScore = (pNum * 13 + (seed % 101)) % 10;
-  const level = levelScore < 2 ? 2 : 1;
-
-  const bigPool = [5, 6, 7, 8, 9];
-  const smallPool = [0, 1, 2, 3, 4];
-  const primaryPool = predictedSize === 'BIG' ? bigPool : smallPool;
-  const secondaryPool = predictedSize === 'BIG' ? smallPool : bigPool;
-
-  const num1 = primaryPool[(pNum * 7 + seed) % primaryPool.length];
-  const num2 = secondaryPool[(pNum * 11 + seed * 3) % secondaryPool.length];
-  const numbers = [num1, num2].sort((a, b) => a - b);
-
   return res.json({
     periodFull,
     periodShort,
     secondsLeft,
-    prediction: predictedSize,
-    primaryNumber: num1,
-    numbers,
-    level,
     timestamp: now.toISOString(),
     upstreamList
   });
